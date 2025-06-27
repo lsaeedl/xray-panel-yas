@@ -1,0 +1,57 @@
+name: Python Flask CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y postgresql postgresql-contrib libpq-dev python3-dev build-essential
+
+    - name: Start PostgreSQL service
+      run: |
+        sudo service postgresql start
+        psql --version
+
+    - name: Setup Python environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Setup PostgreSQL DB
+      run: |
+        sudo -u postgres psql -c "CREATE DATABASE xray_panel;" || echo "DB exists"
+        sudo -u postgres psql -c "CREATE USER xray_user WITH PASSWORD 'StrongPass123!';" || echo "User exists"
+        sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE xray_panel TO xray_user;"
+
+    - name: Run DB migrations
+      run: |
+        source venv/bin/activate
+        export FLASK_APP=run.py
+        flask db upgrade
+
+    - name: Run Flask app tests or sanity check
+      run: |
+        source venv/bin/activate
+        export FLASK_APP=run.py
+        flask run --host=127.0.0.1 &
+        sleep 5
+        curl http://127.0.0.1:5000 || exit 1
