@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}پنل مدیریت Xray{% endblock %}</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; direction: rtl; margin: 20px; }
+        header { background: #333; color: #fff; padding: 10px; }
+        nav a { color: #fff; margin: 0 10px; text-decoration: none; }
+        footer { margin-top: 20px; font-size: 0.8em; color: #555; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🌐 Xray Panel</h1>
+        <nav>
+            <a href="/">داشبورد</a> | 
+            <a href="/users">کاربران</a> | 
+            <a href="/logout">خروج</a>
+        </nav>
+    </header>
+    <hr>
+    {% block content %}{% endblock %}
+    <hr>
+    <footer>© 2025 - تمامی حقوق محفوظ است</footer>
+</body>
+</html>
